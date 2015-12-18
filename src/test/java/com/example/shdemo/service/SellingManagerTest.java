@@ -1,114 +1,155 @@
 package com.example.shdemo.service;
-
+import static org.junit.Assert.*;
+import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertEquals;
 
 import java.util.List;
 
+import com.example.shdemo.domain.Restaurant;
+import com.example.shdemo.domain.Worker;
+import org.junit.After;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.test.annotation.Rollback;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.transaction.TransactionConfiguration;
 import org.springframework.transaction.annotation.Transactional;
 
-import com.example.shdemo.domain.Car;
-import com.example.shdemo.domain.Person;
-
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/beans.xml" })
 @TransactionConfiguration(transactionManager = "txManager", defaultRollback = true)
 @Transactional
+
 public class SellingManagerTest {
 
 	@Autowired
 	SellingManager sellingManager;
+//Restaurant
+	private final String NAME_1 = "Smak";
+	private final String NIP_1 = "1234";
 
-	private final String NAME_1 = "Bolek";
-	private final String PIN_1 = "1234";
+	private final String NAME_2 = "Pierog";
+	private final String NIP_2 = "4321";
+//Worker
+	private final String NAME_3 = "Lukasz";
+	private final String SURNAME_1 = "Klin";
 
-	private final String NAME_2 = "Lolek";
-	private final String PIN_2 = "4321";
+	private final String NAME_4 = "Kasia";
+	private final String SURNAME_2 = "Nowak";
 
-	private final String MODEL_1 = "126p";
-	private final String MAKE_1 = "Fiat";
-
-	private final String MODEL_2 = "Mondeo";
-	private final String MAKE_2 = "Ford";
+	//@After
+	//public void after() {}
+	//@Before
+	//public void before() {}
 
 	@Test
-	public void addClientCheck() {
+	public void addRestaurantCheck() {
 
-		List<Person> retrievedClients = sellingManager.getAllClients();
+		List<Restaurant> retrievedRestaurants = sellingManager.getAllRestaurants();
 
-		// If there is a client with PIN_1 delete it
-		for (Person client : retrievedClients) {
-			if (client.getPin().equals(PIN_1)) {
-				sellingManager.deleteClient(client);
+		// If there is a client with NIP_1 delete it
+		for (Restaurant restaurant : retrievedRestaurants) {
+			if (restaurant.getNip().equals(NIP_1)) {
+				sellingManager.deleteRestaurant(restaurant);
 			}
 		}
 
-		Person person = new Person();
-		person.setFirstName(NAME_1);
-		person.setPin(PIN_1);
+		Restaurant restaurant = new Restaurant();
+		restaurant.setName(NAME_1);
+		restaurant.setNip(NIP_1);
 		// ... other properties here
 
-		// Pin is Unique
-		sellingManager.addClient(person);
+		// Nip is Unique
+		sellingManager.addRestaurant(restaurant);
 
-		Person retrievedClient = sellingManager.findClientByPin(PIN_1);
+		Restaurant retrievedRestaurant = sellingManager.findRestaurantByNip(NIP_1);
 
-		assertEquals(NAME_1, retrievedClient.getFirstName());
-		assertEquals(PIN_1, retrievedClient.getPin());
+		assertEquals(NAME_1, retrievedRestaurant.getName());
+		assertEquals(NIP_1, retrievedRestaurant.getNip());
 		// ... check other properties here
 	}
 
 	@Test
-	public void addCarCheck() {
+	public void getAllRestaurantsCheck()
+	{
+		Restaurant restaurant = new Restaurant();
+		restaurant.setName(NAME_2);
+		restaurant.setNip(NIP_2);
+		sellingManager.addRestaurant(restaurant);
 
-		Car car = new Car();
-		car.setMake(MAKE_1);
-		car.setModel(MODEL_1);
-		// ... other properties here
+		assertEquals(1, sellingManager.getAllRestaurants().size());
 
-		Long carId = sellingManager.addNewCar(car);
-
-		Car retrievedCar = sellingManager.findCarById(carId);
-		assertEquals(MAKE_1, retrievedCar.getMake());
-		assertEquals(MODEL_1, retrievedCar.getModel());
-		// ... check other properties here
-
+		sellingManager.deleteRestaurant(restaurant);
 	}
 
 	@Test
-	public void sellCarCheck() {
+	public void addNewWorkerCheck()
+	{
+		Worker worker = new Worker();
+		worker.setName(NAME_3);
+		worker.setSurname(SURNAME_1);
+		// ... other properties here
 
-		Person person = new Person();
-		person.setFirstName(NAME_2);
-		person.setPin(PIN_2);
+		Long workerId = sellingManager.addNewWorker(worker);
 
-		sellingManager.addClient(person);
+		Worker retrievedWorker = sellingManager.findWorkerById(workerId);
+		assertEquals(NAME_3, retrievedWorker.getName());
+		assertEquals(SURNAME_1, retrievedWorker.getSurname());
+		// ... check other properties here
+	}
 
-		Person retrievedPerson = sellingManager.findClientByPin(PIN_2);
+	@Test
+	public void sellCarCheck()
+	{
+		Restaurant restaurant = new Restaurant();
+		restaurant.setName(NAME_2);
+		restaurant.setNip(NIP_2);
 
-		Car car = new Car();
-		car.setMake(MAKE_2);
-		car.setModel(MODEL_2);
+		sellingManager.addRestaurant(restaurant);
 
-		Long carId = sellingManager.addNewCar(car);
+		Restaurant retrievedRestaurant = sellingManager.findRestaurantByNip(NIP_2);
 
-		sellingManager.sellCar(retrievedPerson.getId(), carId);
+		Worker worker = new Worker();
+		worker.setName(NAME_2);
+		worker.setSurname(SURNAME_2);
 
-		List<Car> ownedCars = sellingManager.getOwnedCars(retrievedPerson);
+		Long carId = sellingManager.addNewWorker(worker);
 
-		assertEquals(1, ownedCars.size());
-		assertEquals(MAKE_2, ownedCars.get(0).getMake());
-		assertEquals(MODEL_2, ownedCars.get(0).getModel());
+		sellingManager.sellCar(retrievedRestaurant.getId(), carId);
+
+		List<Worker> ownedWorkers = sellingManager.getAllWorkersByRestaurant(retrievedRestaurant);
+
+		assertEquals(1, ownedWorkers.size());
+		assertEquals(NAME_2, ownedWorkers.get(0).getName());
+		assertEquals(SURNAME_2, ownedWorkers.get(0).getSurname());
 	}
 
 	// @Test -
-	public void disposeCarCheck() {
+	public void disposeWorkerCheck() {
 		// Do it yourself
 	}
 
+	//@Before
+	//public void beforeMethod()
+	//{
+
+	//}
+	@Test
+	public void updateRestaurantCheck()
+	{
+		Restaurant restaurant = new Restaurant();
+		restaurant.setName(NAME_2);
+		restaurant.setNip(NIP_2);
+
+		sellingManager.addRestaurant(restaurant);
+		sellingManager.updateRestaurant(restaurant, NAME_1, NIP_1);
+
+		Restaurant retrievedRestaurant = sellingManager.findRestaurantByNip(NIP_2);
+		assertThat(NIP_2, not(restaurant.getNip()));
+		assertEquals(NAME_1, restaurant.getName());
+		assertEquals(NIP_1, restaurant.getNip());
+	}
 }

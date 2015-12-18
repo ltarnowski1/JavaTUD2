@@ -19,18 +19,18 @@ import javax.persistence.TemporalType;
 
 @Entity
 @NamedQueries({ 
-	@NamedQuery(name = "person.all", query = "Select p from Person p"),
-	@NamedQuery(name = "person.byPin", query = "Select p from Person p where p.pin = :pin")
+	@NamedQuery(name = "restaurant.all", query = "Select p from Restaurant p"),
+	@NamedQuery(name = "restaurant.byNip", query = "Select p from Restaurant p where p.nip = :nip")
 })
-public class Person {
+public class Restaurant {
 
 	private Long id;
 
-	private String firstName = "unknown";
-	private String pin = "";
+	private String name = "unknown";
+	private String nip = "";
 	private Date registrationDate = new Date();
 
-	private List<Car> cars = new ArrayList<Car>();
+	private List<Worker> workers = new ArrayList<Worker>();
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -41,19 +41,19 @@ public class Person {
 		this.id = id;
 	}
 	
-	public String getFirstName() {
-		return firstName;
+	public String getName() {
+		return name;
 	}
-	public void setFirstName(String firstName) {
-		this.firstName = firstName;
+	public void setName(String name) {
+		this.name = name;
 	}
 
 	@Column(unique = true, nullable = false)
-	public String getPin() {
-		return pin;
+	public String getNip() {
+		return nip;
 	}
-	public void setPin(String pin) {
-		this.pin = pin;
+	public void setNip(String nip) {
+		this.nip = nip;
 	}
 
 	@Temporal(TemporalType.DATE)
@@ -66,10 +66,10 @@ public class Person {
 
 	// Be careful here, both with lazy and eager fetch type
 	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-	public List<Car> getCars() {
-		return cars;
+	public List<Worker> getWorkers() {
+		return workers;
 	}
-	public void setCars(List<Car> cars) {
-		this.cars = cars;
+	public void setWorkers(List<Worker> workers) {
+		this.workers = workers;
 	}
 }
