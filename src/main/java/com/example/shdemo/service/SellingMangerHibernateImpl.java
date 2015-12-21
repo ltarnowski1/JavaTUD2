@@ -1,6 +1,7 @@
 package com.example.shdemo.service;
 
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 
 
@@ -26,12 +27,29 @@ public class SellingMangerHibernateImpl implements SellingManager {
 	public void setSessionFactory(SessionFactory sessionFactory) {
 		this.sessionFactory = sessionFactory;
 	}
-	
+
+	// CREATE +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
 	@Override
-	public void addRestaurant(Restaurant restaurant) {
-		restaurant.setId(null);
-		sessionFactory.getCurrentSession().persist(restaurant);
+	public Long addRestaurant(Restaurant restaurant) {
+		//restaurant.setId(null);
+		Long id = (Long) sessionFactory.getCurrentSession().save(restaurant);
+		restaurant.setId(id);
+		return id;
 	}
+
+	@Override
+	public Long addNewWorker(Worker worker) {
+		//worker.setId(null);
+		Long id = (Long) sessionFactory.getCurrentSession().save(worker);
+		worker.setId(id);
+		Restaurant restaurant = (Restaurant) sessionFactory.getCurrentSession().get(Restaurant.class, worker.getRestaurant().getId());
+		restaurant.getWorkers().add(worker);
+		return id;
+	}
+
+	// READE ++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+	// ALL ---
 
 	@Override
 	@SuppressWarnings("unchecked")
@@ -41,13 +59,78 @@ public class SellingMangerHibernateImpl implements SellingManager {
 	}
 
 	@Override
-	public void updateRestaurant(Restaurant restaurant, String name, String nip)
+	public List<Worker> getAllWorkers()
+	{
+		return sessionFactory.getCurrentSession().getNamedQuery("worker.all")
+				.list();
+	}
+
+	// BY ID ---
+
+	@Override
+	public Restaurant findRestaurantById(Long Id)
+	{
+		return (Restaurant) sessionFactory.getCurrentSession().get(Restaurant.class, Id);
+	}
+
+	@Override
+	public Worker findWorkerById(Long Id)
+	{
+		return (Worker) sessionFactory.getCurrentSession().get(Worker.class, Id);
+	}
+
+	// BY SOMETHING UNIQUE ---
+
+	@Override
+	public Restaurant findRestaurantByNip(String nip)
+	{
+		return (Restaurant) sessionFactory.getCurrentSession().getNamedQuery("restaurant.byNip").setString("nip", nip).uniqueResult();
+	}
+
+	@Override
+	@SuppressWarnings("unchecked")
+	public List<Worker> getHiredWorkers() {
+		return sessionFactory.getCurrentSession().getNamedQuery("worker.hired")
+				.list();
+	}
+
+	// ALL X IN Y ---
+
+	@Override
+	public List<Worker> getAllWorkersByRestaurant(Restaurant restaurant)
+	{
+		restaurant = (Restaurant) sessionFactory.getCurrentSession().get(Restaurant.class,
+				restaurant.getId());
+		// lazy loading here - try this code without (shallow) copying
+		List<Worker> workers = new ArrayList<Worker>(restaurant.getWorkers());
+		return workers;
+	}
+
+	// UPDATE +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
+
+	@Override
+	public void updateRestaurant(Restaurant restaurant, String name, String nip, Date registration, List<Worker> workers)
 	{
 		restaurant = (Restaurant) sessionFactory.getCurrentSession().get(Restaurant.class, restaurant.getId());
 		restaurant.setName(name);
 		restaurant.setNip(nip);
-
+		restaurant.setRegistrationDate(registration);
+		restaurant.setWorkers(workers);
+		sessionFactory.getCurrentSession().update(restaurant);
 	}
+
+	@Override
+	public void updateWorker(Worker worker, String name, String surname, Restaurant restaurant, Boolean hired)
+	{
+		worker = (Worker) sessionFactory.getCurrentSession().get(Worker.class, worker.getId());
+		worker.setName(name);
+		worker.setSurname(surname);
+		worker.setRestaurant(restaurant);
+		worker.setHired(hired);
+		sessionFactory.getCurrentSession().update(worker);
+	}
+
+	// DELETE +++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++
 
 	@Override
 	public void deleteRestaurant(Restaurant restaurant) {
@@ -63,26 +146,12 @@ public class SellingMangerHibernateImpl implements SellingManager {
 	}
 
 	@Override
-	public Restaurant findRestaurantByNip(String nip) {
-		return (Restaurant) sessionFactory.getCurrentSession().getNamedQuery("restaurant.byNip").setString("nip", nip).uniqueResult();
-	}
-
-	@Override
-	public Worker findWorkerById(Long Id) {
-		return (Worker) sessionFactory.getCurrentSession().get(Worker.class, Id);
-	}
-
-	@Override
-	public Long addNewWorker(Worker worker) {
-		worker.setId(null);
-		return (Long) sessionFactory.getCurrentSession().save(worker);
-	}
-
-	@Override
-	@SuppressWarnings("unchecked")
-	public List<Worker> getHiredWorkers() {
-		return sessionFactory.getCurrentSession().getNamedQuery("worker.hired")
-				.list();
+	public void deleteWorker(Worker worker)
+	{
+		worker = (Worker) sessionFactory.getCurrentSession().get(Worker.class, worker.getId());
+		Restaurant restaurant = (Restaurant) sessionFactory.getCurrentSession().get(Restaurant.class, worker.getRestaurant().getId());
+		restaurant.getWorkers().remove(worker);
+		sessionFactory.getCurrentSession().delete(worker);
 	}
 
 	@Override
@@ -107,27 +176,7 @@ public class SellingMangerHibernateImpl implements SellingManager {
 		worker.setHired(false);
 	}
 
-	@Override
-	public List<Worker> getAllWorkersByRestaurant(Restaurant restaurant)
-	{
-		restaurant = (Restaurant) sessionFactory.getCurrentSession().get(Restaurant.class,
-				restaurant.getId());
-		// lazy loading here - try this code without (shallow) copying
-		List<Worker> workers = new ArrayList<Worker>(restaurant.getWorkers());
-		return workers;
-	}
 
-	@Override
-	public void sellCar(Long personId, Long carId) {
-		Restaurant restaurant = (Restaurant) sessionFactory.getCurrentSession().get(
-				Restaurant.class, personId);
-		Worker worker = (Worker) sessionFactory.getCurrentSession()
-				.get(Worker.class, carId);
-		worker.setHired(true);
-		restaurant.getWorkers().add(worker);
-	}
 
-	@Override
-	public Restaurant findRestaurantById(Long Id) { return (Restaurant) sessionFactory.getCurrentSession().get(Restaurant.class, Id); }
 
 }

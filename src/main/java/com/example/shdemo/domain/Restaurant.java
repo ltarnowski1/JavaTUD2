@@ -65,7 +65,7 @@ public class Restaurant {
 	}
 
 	// Be careful here, both with lazy and eager fetch type
-	@OneToMany(cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+	@OneToMany(mappedBy = "restaurant", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
 	public List<Worker> getWorkers() {
 		return workers;
 	}

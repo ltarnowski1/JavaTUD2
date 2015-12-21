@@ -6,5 +6,22 @@
     </database-info>
     <case-sensitivity plain-identifiers="upper" quoted-identifiers="exact"/>
     <schema name="PUBLIC" catalog="PUBLIC"/>
+    <table name="RESTAURANT" schema="PUBLIC" catalog="PUBLIC" type="TABLE">
+      <column name="ID" sqlType="BIGINT" precision="64" scale="0" nullable="false" jdbcType="-5" autoIncrement="true"/>
+      <column name="NAME" sqlType="VARCHAR" precision="255" scale="0" nullable="true" jdbcType="12"/>
+      <column name="NIP" sqlType="VARCHAR" precision="255" scale="0" nullable="false" jdbcType="12"/>
+      <column name="REGISTRATIONDATE" sqlType="DATE" precision="10" scale="0" nullable="true" jdbcType="91"/>
+      <primary-key name="SYS_PK_10237" columns="ID"/>
+      <exported-key name="FK9AC73F9E56927BC3" table="WORKER" schema="PUBLIC" catalog="PUBLIC" columns="ID_RESTAURANT"/>
+    </table>
+    <table name="WORKER" schema="PUBLIC" catalog="PUBLIC" type="TABLE">
+      <column name="ID" sqlType="BIGINT" precision="64" scale="0" nullable="false" jdbcType="-5" autoIncrement="true"/>
+      <column name="HIRED" sqlType="BIT" precision="1" scale="0" nullable="true" jdbcType="-7"/>
+      <column name="NAME" sqlType="VARCHAR" precision="255" scale="0" nullable="true" jdbcType="12"/>
+      <column name="SURNAME" sqlType="VARCHAR" precision="255" scale="0" nullable="true" jdbcType="12"/>
+      <column name="ID_RESTAURANT" sqlType="BIGINT" precision="64" scale="0" nullable="false" jdbcType="-5"/>
+      <primary-key name="SYS_PK_10243" columns="ID"/>
+      <foreign-key name="FK9AC73F9E56927BC3" columns="ID_RESTAURANT" ref-table="RESTAURANT" ref-schema="PUBLIC" ref-catalog="PUBLIC" ref-columns="ID" update-rule="3" delete-rule="3" deferrability="2"/>
+    </table>
   </data-source>
 </component>
