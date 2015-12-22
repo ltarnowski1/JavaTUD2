@@ -22,7 +22,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 @RunWith(SpringJUnit4ClassRunner.class)
 @ContextConfiguration(locations = { "classpath:/beans.xml" })
-@TransactionConfiguration(transactionManager = "txManager", defaultRollback = true)
+@TransactionConfiguration(transactionManager = "txManager", defaultRollback = false)
 @Transactional
 
 public class SellingManagerTest {
@@ -199,8 +199,13 @@ public class SellingManagerTest {
 	@Test
 	public void getAllWorkersByRestaurantCheck()
 	{
-		//List<Worker> workers = new ArrayList<Worker>();
-		//workers.add(worker);
-		//restaurant.setWorkers(workers);
+		List<Worker> workers = new ArrayList<Worker>();
+		workers.add(worker);
+		restaurant.setWorkers(workers);
+		sellingManager.addRestaurant(restaurant);
+
+		List<Worker> retrievedWorkers = sellingManager.getAllWorkersByRestaurant(restaurant);
+		assertEquals(1, retrievedWorkers.size());
+
 	}
 }
