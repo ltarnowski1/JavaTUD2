@@ -54,6 +54,7 @@ public class SellingManagerTest {
 		worker.setName(NAME_3);
 		worker.setSurname(SURNAME_1);
 		worker.setRestaurant(restaurant);
+		worker.setHired(true);
 	}
 	@After
 	public void after()
@@ -174,4 +175,32 @@ public class SellingManagerTest {
 		assertEquals(NIP_1, restaurant.getNip());
 	}
 	*/
+
+	@Test
+	public void findRestaurantByIdCheck() {
+		Long id = sellingManager.addRestaurant(restaurant);
+		Restaurant restaurant = sellingManager.findRestaurantById(id);
+		assertEquals(id, restaurant.getId());
+		assertEquals(NAME_1, restaurant.getName());
+		assertEquals(NIP_1, restaurant.getNip());
+	}
+
+	@Test
+	public void getHiredWorkersCheck() {
+		int size = sellingManager.getHiredWorkers().size();
+		sellingManager.addRestaurant(restaurant);
+		sellingManager.addNewWorker(worker);
+		assertEquals(size + 1, sellingManager.getHiredWorkers().size());
+		List<Worker> workersH = sellingManager.getHiredWorkers();
+		for (Worker wH : workersH)
+			assertEquals(true, wH.getHired());
+	}
+
+	@Test
+	public void getAllWorkersByRestaurantCheck()
+	{
+		//List<Worker> workers = new ArrayList<Worker>();
+		//workers.add(worker);
+		//restaurant.setWorkers(workers);
+	}
 }
