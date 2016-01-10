@@ -153,30 +153,4 @@ public class SellingMangerHibernateImpl implements SellingManager {
 		restaurant.getWorkers().remove(worker);
 		sessionFactory.getCurrentSession().delete(worker);
 	}
-
-	@Override
-	public void disposeWorker(Restaurant restaurant, Worker worker) {
-
-		restaurant = (Restaurant) sessionFactory.getCurrentSession().get(Restaurant.class,
-				restaurant.getId());
-		worker = (Worker) sessionFactory.getCurrentSession().get(Worker.class,
-				worker.getId());
-
-		Worker toRemove = null;
-		// lazy loading here (restaurant.getWorkers)
-		for (Worker aWorker : restaurant.getWorkers())
-			if (aWorker.getId().compareTo(worker.getId()) == 0) {
-				toRemove = aWorker;
-				break;
-			}
-
-		if (toRemove != null)
-			restaurant.getWorkers().remove(toRemove);
-
-		worker.setHired(false);
-	}
-
-
-
-
 }

@@ -28,7 +28,6 @@ public interface SellingManager {
 
 	//REST
 	List<Worker> getHiredWorkers();
-	void disposeWorker(Restaurant restaurant, Worker worker);
 	Worker findWorkerById(Long Id);
 	List<Worker>getAllWorkersByRestaurant(Restaurant restaurant);				//get all X in Y
 

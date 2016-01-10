@@ -3,6 +3,7 @@ import static org.junit.Assert.*;
 import static org.hamcrest.CoreMatchers.*;
 import static org.junit.Assert.assertEquals;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -32,9 +33,11 @@ public class SellingManagerTest {
 //Restaurant
 	private final String NAME_1 = "Smak";
 	private final String NIP_1 = "1234";
+	private final Date DATE_1 = new Date();
 
 	private final String NAME_2 = "Pierog";
 	private final String NIP_2 = "4321";
+	private final Date DATE_2 = new Date();
 //Worker
 	private final String NAME_3 = "Lukasz";
 	private final String SURNAME_1 = "Klin";
@@ -42,6 +45,7 @@ public class SellingManagerTest {
 	private final String NAME_4 = "Kasia";
 	private final String SURNAME_2 = "Nowak";
 
+	SimpleDateFormat sdf = new SimpleDateFormat("yyyy-M-dd");
 	Restaurant restaurant = new Restaurant();
 	Worker worker = new Worker();
 
@@ -50,6 +54,7 @@ public class SellingManagerTest {
 	{
 		restaurant.setName(NAME_1);
 		restaurant.setNip(NIP_1);
+		restaurant.setRegistrationDate(DATE_1);
 
 		worker.setName(NAME_3);
 		worker.setSurname(SURNAME_1);
@@ -77,17 +82,7 @@ public class SellingManagerTest {
 
 	@Test
 	public void addRestaurantCheck() {
-/*
-		List<Restaurant> retrievedRestaurants = sellingManager.getAllRestaurants();
 
-		// If there is a client with NIP_1 delete it
-		for (Restaurant restaurant : retrievedRestaurants) {
-			if (restaurant.getNip().equals(NIP_1)) {
-				sellingManager.deleteRestaurant(restaurant);
-			}
-		}*/
-
-		// Nip is Unique
 		sellingManager.addRestaurant(restaurant);
 
 		Restaurant retrievedRestaurant = sellingManager.findRestaurantByNip(NIP_1);
@@ -100,25 +95,16 @@ public class SellingManagerTest {
 	@Test
 	public void getAllRestaurantsCheck()
 	{
-		//Restaurant restaurant = new Restaurant();
-		//restaurant.setName(NAME_2);
-		//restaurant.setNip(NIP_2);
 		List<Restaurant> restaurants = sellingManager.getAllRestaurants();
 		int count = restaurants.size();
 		sellingManager.addRestaurant(restaurant);
 		restaurants = sellingManager.getAllRestaurants();
 		assertEquals(count+1, restaurants.size());
-
-		//sellingManager.deleteRestaurant(restaurant);
 	}
 
 	@Test
 	public void addNewWorkerCheck()
 	{
-		//Worker worker = new Worker();
-		//worker.setName(NAME_3);
-		//worker.setSurname(SURNAME_1);
-		// ... other properties here
 		sellingManager.addRestaurant(restaurant);
 		Long workerId = sellingManager.addNewWorker(worker);
 
@@ -127,54 +113,6 @@ public class SellingManagerTest {
 		assertEquals(SURNAME_1, retrievedWorker.getSurname());
 		// ... check other properties here
 	}
-/*
-	@Test
-	public void sellCarCheck()
-	{
-		Restaurant restaurant = new Restaurant();
-		restaurant.setName(NAME_2);
-		restaurant.setNip(NIP_2);
-
-		sellingManager.addRestaurant(restaurant);
-
-		Restaurant retrievedRestaurant = sellingManager.findRestaurantByNip(NIP_2);
-
-		Worker worker = new Worker();
-		worker.setName(NAME_2);
-		worker.setSurname(SURNAME_2);
-
-		Long carId = sellingManager.addNewWorker(worker);
-
-		sellingManager.sellCar(retrievedRestaurant.getId(), carId);
-
-		List<Worker> ownedWorkers = sellingManager.getAllWorkersByRestaurant(retrievedRestaurant);
-
-		assertEquals(1, ownedWorkers.size());
-		assertEquals(NAME_2, ownedWorkers.get(0).getName());
-		assertEquals(SURNAME_2, ownedWorkers.get(0).getSurname());
-	}
-
-	// @Test -
-	public void disposeWorkerCheck() {
-		// Do it yourself
-	}
-
-	@Test
-	public void updateRestaurantCheck()
-	{
-		Restaurant restaurant = new Restaurant();
-		restaurant.setName(NAME_2);
-		restaurant.setNip(NIP_2);
-
-		sellingManager.addRestaurant(restaurant);
-		sellingManager.updateRestaurant(restaurant, NAME_1, NIP_1);
-
-		Restaurant retrievedRestaurant = sellingManager.findRestaurantByNip(NIP_2);
-		assertThat(NIP_2, not(restaurant.getNip()));
-		assertEquals(NAME_1, restaurant.getName());
-		assertEquals(NIP_1, restaurant.getNip());
-	}
-	*/
 
 	@Test
 	public void findRestaurantByIdCheck() {
@@ -206,6 +144,39 @@ public class SellingManagerTest {
 
 		List<Worker> retrievedWorkers = sellingManager.getAllWorkersByRestaurant(restaurant);
 		assertEquals(1, retrievedWorkers.size());
+	}
 
+	@Test
+	public void deleteRestaurantCheck()
+	{
+		sellingManager.addRestaurant(restaurant);
+		int count = sellingManager.getAllRestaurants().size();
+		sellingManager.deleteRestaurant(restaurant);
+		int count2 = sellingManager.getAllRestaurants().size();
+		assertEquals(count-1, count2);
+		assertNull(sellingManager.findRestaurantById(restaurant.getId()));
+	}
+
+	@Test
+	public void updateRestaurantCheck()
+	{
+		List<Worker> workers = new ArrayList<Worker>();
+		workers.add(worker);
+		restaurant.setWorkers(workers);
+		sellingManager.addRestaurant(restaurant);
+		sellingManager.updateRestaurant(restaurant, NAME_2, NIP_2, DATE_2, workers);
+		assertEquals(NAME_2, restaurant.getName());
+		assertEquals(NIP_2, restaurant.getNip());
+		assertEquals(DATE_2, restaurant.getRegistrationDate());
+		assertEquals(workers, restaurant.getWorkers());
+        List<Restaurant> restaurants = sellingManager.getAllRestaurants();
+        for (Restaurant r : restaurants) {
+            if (!r.equals(restaurant)) {
+                assertThat(r.getName(), not(NAME_2));
+                assertThat(r.getNip(), not(NIP_2));
+                assertThat(r.getRegistrationDate(), not(DATE_2));
+                assertThat(r.getWorkers(), not(workers));
+            }
+        }
 	}
 }
