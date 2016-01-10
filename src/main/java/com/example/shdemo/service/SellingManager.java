@@ -27,8 +27,8 @@ public interface SellingManager {
 	void deleteWorker(Worker worker);
 
 	//REST
-	List<Worker> getHiredWorkers();
-	Worker findWorkerById(Long Id);
+	List<Worker> getHiredWorkers();												//find by hire
+	Worker findWorkerById(Long Id);												//find by ID
 	List<Worker>getAllWorkersByRestaurant(Restaurant restaurant);				//get all X in Y
 
 }
